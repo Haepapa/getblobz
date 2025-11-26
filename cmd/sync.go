@@ -59,6 +59,10 @@ func init() {
 	syncCmd.Flags().Bool("force-resync", false, "ignore state and re-download all files")
 	syncCmd.Flags().Bool("skip-existing", true, "skip files that already exist locally")
 	syncCmd.Flags().Bool("verify-checksums", true, "verify MD5 checksums after download")
+	syncCmd.Flags().Bool("organize-folders", false, "enable folder organization")
+	syncCmd.Flags().Int("max-files-per-folder", 10000, "maximum files per folder")
+	syncCmd.Flags().String("folder-strategy", "sequential", "folder organization strategy (sequential, partition_key, date)")
+	syncCmd.Flags().Int("partition-depth", 2, "partition depth for partition_key strategy")
 
 	syncCmd.MarkFlagRequired("container")
 
@@ -78,6 +82,10 @@ func init() {
 	viper.BindPFlag("sync.skip_existing", syncCmd.Flags().Lookup("skip-existing"))
 	viper.BindPFlag("sync.verify_checksums", syncCmd.Flags().Lookup("verify-checksums"))
 	viper.BindPFlag("sync.force_resync", syncCmd.Flags().Lookup("force-resync"))
+	viper.BindPFlag("sync.folder_organization.enabled", syncCmd.Flags().Lookup("organize-folders"))
+	viper.BindPFlag("sync.folder_organization.max_files_per_folder", syncCmd.Flags().Lookup("max-files-per-folder"))
+	viper.BindPFlag("sync.folder_organization.strategy", syncCmd.Flags().Lookup("folder-strategy"))
+	viper.BindPFlag("sync.folder_organization.partition_depth", syncCmd.Flags().Lookup("partition-depth"))
 	viper.BindPFlag("watch.enabled", syncCmd.Flags().Lookup("watch"))
 	viper.BindPFlag("watch.interval", syncCmd.Flags().Lookup("watch-interval"))
 	viper.BindPFlag("state.database", syncCmd.Flags().Lookup("state-db"))

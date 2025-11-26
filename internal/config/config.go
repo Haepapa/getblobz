@@ -57,6 +57,20 @@ type SyncConfig struct {
 	VerifyChecksums bool `mapstructure:"verify_checksums"`
 	// ForceResync forces re-download of all files ignoring state.
 	ForceResync bool `mapstructure:"force_resync"`
+	// FolderOrganization contains settings for organizing files into folders.
+	FolderOrganization FolderOrganizationConfig `mapstructure:"folder_organization"`
+}
+
+// FolderOrganizationConfig contains settings for organizing downloaded files into folders.
+type FolderOrganizationConfig struct {
+	// Enabled enables automatic folder organization.
+	Enabled bool `mapstructure:"enabled"`
+	// MaxFilesPerFolder is the maximum number of files per folder.
+	MaxFilesPerFolder int `mapstructure:"max_files_per_folder"`
+	// Strategy determines the folder organization strategy (partition_key, date, sequential).
+	Strategy string `mapstructure:"strategy"`
+	// PartitionDepth is the depth of partition key hashing (for partition_key strategy).
+	PartitionDepth int `mapstructure:"partition_depth"`
 }
 
 // WatchConfig contains continuous sync monitoring settings.
@@ -106,6 +120,12 @@ func Default() *Config {
 			BatchSize:       5000,
 			SkipExisting:    true,
 			VerifyChecksums: true,
+			FolderOrganization: FolderOrganizationConfig{
+				Enabled:           false,
+				MaxFilesPerFolder: 10000,
+				Strategy:          "sequential",
+				PartitionDepth:    2,
+			},
 		},
 		Watch: WatchConfig{
 			Enabled:  false,
@@ -163,6 +183,25 @@ func (c *Config) Validate() error {
 
 	if c.Performance.ThrottleThreshold < 0.1 || c.Performance.ThrottleThreshold > 1.0 {
 		return fmt.Errorf("throttle threshold must be between 0.1 and 1.0")
+	}
+
+	if c.Sync.FolderOrganization.Enabled {
+		if c.Sync.FolderOrganization.MaxFilesPerFolder < 100 || c.Sync.FolderOrganization.MaxFilesPerFolder > 100000 {
+			return fmt.Errorf("max files per folder must be between 100 and 100000")
+		}
+
+		validStrategies := map[string]bool{
+			"sequential":    true,
+			"partition_key": true,
+			"date":          true,
+		}
+		if !validStrategies[c.Sync.FolderOrganization.Strategy] {
+			return fmt.Errorf("invalid folder organization strategy: must be sequential, partition_key, or date")
+		}
+
+		if c.Sync.FolderOrganization.PartitionDepth < 1 || c.Sync.FolderOrganization.PartitionDepth > 4 {
+			return fmt.Errorf("partition depth must be between 1 and 4")
+		}
 	}
 
 	return nil

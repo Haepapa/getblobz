@@ -9,16 +9,18 @@ import (
 
 	"github.com/haepapa/getblobz/internal/azure"
 	"github.com/haepapa/getblobz/internal/config"
+	"github.com/haepapa/getblobz/internal/organizer"
 	"github.com/haepapa/getblobz/internal/storage"
 	"github.com/haepapa/getblobz/pkg/logger"
 )
 
 // Syncer manages the blob synchronisation process.
 type Syncer struct {
-	cfg    *config.Config
-	client *azure.Client
-	db     *storage.DB
-	logger *logger.Logger
+	cfg       *config.Config
+	client    *azure.Client
+	db        *storage.DB
+	logger    *logger.Logger
+	organizer *organizer.Organizer
 
 	runID   int64
 	workers int
@@ -30,14 +32,21 @@ type Syncer struct {
 // New creates a new Syncer instance.
 func New(cfg *config.Config, client *azure.Client, db *storage.DB, log *logger.Logger) *Syncer {
 	ctx, cancel := context.WithCancel(context.Background())
+	org := organizer.New(&cfg.Sync.FolderOrganization, cfg.Sync.OutputPath)
+
+	if err := org.LoadState(); err != nil {
+		log.Warnw("Failed to load organizer state", "error", err)
+	}
+
 	return &Syncer{
-		cfg:     cfg,
-		client:  client,
-		db:      db,
-		logger:  log,
-		workers: cfg.Sync.Workers,
-		ctx:     ctx,
-		cancel:  cancel,
+		cfg:       cfg,
+		client:    client,
+		db:        db,
+		logger:    log,
+		organizer: org,
+		workers:   cfg.Sync.Workers,
+		ctx:       ctx,
+		cancel:    cancel,
 	}
 }
 
@@ -135,10 +144,11 @@ func (s *Syncer) discovery() error {
 			}
 
 			lastModified, _ := time.Parse("2006-01-02T15:04:05Z", blob.LastModified)
+			localPath := s.organizer.GetTargetPath(blob.Name, blob.Path)
 			blobState := &storage.BlobState{
 				BlobName:     blob.Name,
 				BlobPath:     blob.Path,
-				LocalPath:    fmt.Sprintf("%s/%s", s.cfg.Sync.OutputPath, blob.Path),
+				LocalPath:    localPath,
 				SizeBytes:    blob.Size,
 				ETag:         blob.ETag,
 				LastModified: lastModified,
@@ -235,6 +245,15 @@ func (s *Syncer) complete() error {
 		"failed", run.FailedFiles,
 		"total_bytes", run.TotalBytes,
 	)
+
+	if s.cfg.Sync.FolderOrganization.Enabled {
+		stats := s.organizer.GetStats()
+		s.logger.Infow("Folder organization stats",
+			"strategy", stats["strategy"],
+			"total_folders", stats["total_folders"],
+			"total_files", stats["total_files"],
+		)
+	}
 
 	return nil
 }

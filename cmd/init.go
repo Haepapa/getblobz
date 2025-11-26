@@ -79,6 +79,13 @@ sync:
   batch_size: 5000            # Blobs per listing batch
   skip_existing: true         # Skip already downloaded files
   verify_checksums: true      # Verify MD5 after download
+  
+  # Folder organization settings for managing large file collections
+  folder_organization:
+    enabled: false            # Enable automatic folder organization
+    max_files_per_folder: 10000  # Maximum files per folder (100-100000)
+    strategy: "sequential"    # Organization strategy: sequential, partition_key, or date
+    partition_depth: 2        # Hash partition depth for partition_key strategy (1-4)
 
 watch:
   enabled: false              # Continuous monitoring mode

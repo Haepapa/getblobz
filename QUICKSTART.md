@@ -1,203 +1,101 @@
-# getblobz Quick Start Guide
+# Quick Start
 
 ## Installation
 
 ```bash
-# Build from source
-go build -o getblobz main.go
-
-# Or install directly
-go install
+curl -sL https://raw.githubusercontent.com/haepapa/getblobz/main/install.sh | bash
 ```
+
+Or download a binary from the [releases page](https://github.com/haepapa/getblobz/releases).
 
 ## First Sync
 
-### Step 1: Create Configuration
-
-```bash
-getblobz init
-```
-
-This creates a `getblobz.yaml` file in the current directory.
-
-### Step 2: Edit Configuration
-
-Edit `getblobz.yaml` with your Azure Storage credentials:
-
-```yaml
-azure:
-  connection_string: "DefaultEndpointsProtocol=https;AccountName=YOUR_ACCOUNT;AccountKey=YOUR_KEY;EndpointSuffix=core.windows.net"
-
-sync:
-  container: "YOUR_CONTAINER_NAME"
-  output_path: "./downloads"
-  workers: 10
-```
-
-### Step 3: Run Sync
-
-```bash
-getblobz sync
-```
-
-## Common Use Cases
-
-### One-Time Sync
-
-Download all files once:
-
 ```bash
 getblobz sync \
   --container mycontainer \
-  --connection-string "..." \
+  --connection-string "DefaultEndpointsProtocol=https;AccountName=...;AccountKey=...;" \
   --output-path ./downloads
 ```
 
-### Continuous Monitoring
-
-Watch for new files and sync automatically:
+## Using a Config File
 
 ```bash
-getblobz sync \
-  --container mycontainer \
-  --connection-string "..." \
-  --watch \
-  --watch-interval 5m
+# Create config template
+getblobz init
+
+# Edit getblobz.yaml
+azure:
+  connection_string: "..."
+sync:
+  container: "mycontainer"
+  output_path: "./downloads"
+
+# Run sync
+getblobz sync
 ```
 
-### Sync Specific Folder
+## Common Examples
 
-Download only files with a specific prefix:
-
+**Watch mode** (continuous sync):
 ```bash
-getblobz sync \
-  --container mycontainer \
-  --connection-string "..." \
-  --prefix "data/2024/"
+getblobz sync --container mycontainer --connection-string "..." --watch --watch-interval 5m
 ```
 
-### High-Performance Sync
-
-Use more workers for faster downloads:
-
+**Sync specific prefix**:
 ```bash
-getblobz sync \
-  --container mycontainer \
-  --connection-string "..." \
-  --workers 20 \
-  --batch-size 10000
+getblobz sync --container mycontainer --connection-string "..." --prefix "data/2024/"
 ```
 
-### Resource-Constrained Sync
-
-Limit resources on low-power devices:
-
+**Organize large file collections**:
 ```bash
-getblobz sync \
-  --container mycontainer \
-  --connection-string "..." \
-  --workers 2 \
-  --max-cpu-percent 50
+getblobz sync --container mycontainer --connection-string "..." \
+  --organize-folders --max-files-per-folder 10000
+```
+
+**Low-power device** (Raspberry Pi):
+```bash
+getblobz sync --container mycontainer --connection-string "..." \
+  --workers 2 --max-cpu-percent 50
 ```
 
 ## Check Status
-
-View sync statistics:
 
 ```bash
 getblobz status
 ```
 
-Output shows:
-- Total sync runs
-- Files downloaded/pending/failed
-- Recent errors
+## Authentication
 
-## Authentication Methods
-
-### Using Connection String (Recommended)
-
+**Connection string** (most common):
 ```bash
-getblobz sync \
-  --container mycontainer \
-  --connection-string "DefaultEndpointsProtocol=https;..."
+--connection-string "DefaultEndpointsProtocol=https;AccountName=...;AccountKey=...;"
 ```
 
-### Using Account Key
-
+**Managed identity** (on Azure VM):
 ```bash
-getblobz sync \
-  --container mycontainer \
-  --account-name myaccount \
-  --account-key "YOUR_KEY"
+--account-name myaccount --use-managed-identity
 ```
 
-### Using Managed Identity (Azure VM)
-
-```bash
-getblobz sync \
-  --container mycontainer \
-  --account-name myaccount \
-  --use-managed-identity
-```
-
-### Using Azure CLI
-
+**Azure CLI**:
 ```bash
 az login
-getblobz sync \
-  --container mycontainer \
-  --account-name myaccount \
-  --use-azure-cli
+--account-name myaccount --use-azure-cli
 ```
 
 ## Environment Variables
 
-Set credentials via environment variables:
-
 ```bash
-export getblobz_CONNECTION_STRING="DefaultEndpointsProtocol=..."
-export getblobz_CONTAINER=mycontainer
-export getblobz_OUTPUT_PATH=./downloads
-
-# Now just run
+export GETBLOBZ_CONNECTION_STRING="..."
+export GETBLOBZ_CONTAINER=mycontainer
+export GETBLOBZ_OUTPUT_PATH=./downloads
 getblobz sync
 ```
 
-## Configuration File Locations
+## Get Help
 
-getblobz looks for config files in this order:
+```bash
+getblobz --help
+getblobz sync --help
+```
 
-1. Path specified with `--config` flag
-2. `./getblobz.yaml` (current directory)
-3. `~/.config/getblobz/config.yaml` (user config directory)
-
-## Troubleshooting
-
-### "Container not found"
-
-- Verify container name is correct
-- Check credentials have access to the container
-
-### "Authentication failed"
-
-- Verify connection string format
-- Check account key is correct
-- Ensure credentials are not expired
-
-### Slow downloads
-
-- Increase workers: `--workers 20`
-- Check network connection
-- Verify Azure region
-
-### Database locked
-
-- Ensure only one getblobz instance is running
-- Check file permissions on `.sync-state.db`
-
-## Next Steps
-
-- Read [README.md](README.md) for detailed documentation
-- See [DEVELOPERNOTES.md](DEVELOPERNOTES.md) for architecture details
-- Check available flags: `getblobz sync --help`
+See [README.md](README.md) for more details.
