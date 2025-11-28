@@ -14,7 +14,8 @@ Or download a binary from the [releases page](https://github.com/haepapa/getblob
 getblobz sync \
   --container mycontainer \
   --connection-string "DefaultEndpointsProtocol=https;AccountName=...;AccountKey=...;" \
-  --output-path ./downloads
+  --output-path ./downloads \
+  --disk-warn-percent 80 --disk-stop-percent 90
 ```
 
 ## Using a Config File

@@ -8,6 +8,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"syscall"
 	"time"
 
 	"github.com/haepapa/getblobz/internal/storage"
@@ -35,6 +36,28 @@ func (s *Syncer) worker(id int, queue <-chan *storage.BlobState) {
 	}
 }
 
+// fsUsagePercent calculates filesystem usage percent for the directory containing the target path.
+func fsUsagePercent(dir string) (int, error) {
+	var stat syscall.Statfs_t
+	if err := syscall.Statfs(dir, &stat); err != nil {
+		return 0, err
+	}
+	// Use Bavail for non-root available blocks.
+	total := float64(stat.Blocks) * float64(stat.Bsize)
+	avail := float64(stat.Bavail) * float64(stat.Bsize)
+	if total <= 0 {
+		return 0, fmt.Errorf("invalid filesystem size")
+	}
+	usedPercent := int(((total - avail) / total) * 100.0)
+	if usedPercent < 0 {
+		usedPercent = 0
+	}
+	if usedPercent > 100 {
+		usedPercent = 100
+	}
+	return usedPercent, nil
+}
+
 // processBlob downloads and saves a single blob with retry logic.
 func (s *Syncer) processBlob(workerID int, blob *storage.BlobState) {
 	var lastErr error
@@ -49,6 +72,27 @@ func (s *Syncer) processBlob(workerID int, blob *storage.BlobState) {
 				"delay", delay,
 			)
 			time.Sleep(delay)
+		}
+
+		// Check disk usage before attempting download
+		usage, duErr := fsUsagePercent(filepath.Dir(s.cfg.Sync.OutputPath))
+		if duErr == nil {
+			if usage >= s.cfg.Sync.DiskStopPercent {
+				s.logger.Errorw("Filesystem usage exceeded stop threshold; stopping downloads",
+					"usage_percent", usage,
+					"stop_percent", s.cfg.Sync.DiskStopPercent,
+				)
+				lastErr = fmt.Errorf("disk usage %d%% >= stop threshold %d%%", usage, s.cfg.Sync.DiskStopPercent)
+				break
+			}
+			if usage >= s.cfg.Sync.DiskWarnPercent {
+				s.logger.Warnw("Filesystem usage exceeded warn threshold",
+					"usage_percent", usage,
+					"warn_percent", s.cfg.Sync.DiskWarnPercent,
+				)
+			}
+		} else {
+			s.logger.Warnw("Failed to check filesystem usage", "error", duErr)
 		}
 
 		err := s.downloadBlob(workerID, blob)

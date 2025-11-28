@@ -57,6 +57,10 @@ type SyncConfig struct {
 	VerifyChecksums bool `mapstructure:"verify_checksums"`
 	// ForceResync forces re-download of all files ignoring state.
 	ForceResync bool `mapstructure:"force_resync"`
+	// DiskWarnPercent is the filesystem usage percent at which a warning is logged.
+	DiskWarnPercent int `mapstructure:"disk_warn_percent"`
+	// DiskStopPercent is the filesystem usage percent at which downloads stop.
+	DiskStopPercent int `mapstructure:"disk_stop_percent"`
 	// FolderOrganization contains settings for organizing files into folders.
 	FolderOrganization FolderOrganizationConfig `mapstructure:"folder_organization"`
 }
@@ -120,6 +124,8 @@ func Default() *Config {
 			BatchSize:       5000,
 			SkipExisting:    true,
 			VerifyChecksums: true,
+			DiskWarnPercent: 80,
+			DiskStopPercent: 90,
 			FolderOrganization: FolderOrganizationConfig{
 				Enabled:           false,
 				MaxFilesPerFolder: 10000,
@@ -175,6 +181,16 @@ func (c *Config) Validate() error {
 
 	if c.Sync.BatchSize < 1 || c.Sync.BatchSize > 10000 {
 		return fmt.Errorf("batch size must be between 1 and 10000")
+	}
+
+	if c.Sync.DiskWarnPercent < 1 || c.Sync.DiskWarnPercent > 99 {
+		return fmt.Errorf("disk warn percent must be between 1 and 99")
+	}
+	if c.Sync.DiskStopPercent < 1 || c.Sync.DiskStopPercent > 99 {
+		return fmt.Errorf("disk stop percent must be between 1 and 99")
+	}
+	if c.Sync.DiskWarnPercent >= c.Sync.DiskStopPercent {
+		return fmt.Errorf("disk warn percent must be less than disk stop percent")
 	}
 
 	if c.Performance.MaxCPUPercent < 1 || c.Performance.MaxCPUPercent > 100 {

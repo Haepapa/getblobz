@@ -106,6 +106,8 @@ sync:
   container: "mycontainer"
   output_path: "./downloads"
   workers: 10
+  disk_warn_percent: 80
+  disk_stop_percent: 90
 
 watch:
   enabled: false
