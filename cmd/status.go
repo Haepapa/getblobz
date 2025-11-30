@@ -43,7 +43,7 @@ func runStatus(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return fmt.Errorf("failed to open state database: %w", err)
 	}
-	defer sqlDB.Close()
+	defer func() { _ = sqlDB.Close() }()
 
 	var totalRuns, runningRuns, completedRuns, failedRuns int
 	err = sqlDB.QueryRow(`
@@ -119,7 +119,7 @@ func runStatus(cmd *cobra.Command, args []string) error {
 			LIMIT 5
 		`)
 		if err == nil {
-			defer rows.Close()
+			defer func() { _ = rows.Close() }()
 			for rows.Next() {
 				var blobName, errorMsg string
 				var lastSynced *time.Time

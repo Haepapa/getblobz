@@ -89,11 +89,17 @@ func TestOrganizer_DateStrategy(t *testing.T) {
 func TestOrganizer_LoadState(t *testing.T) {
 	tmpDir := t.TempDir()
 
-	os.MkdirAll(filepath.Join(tmpDir, "folder_0000"), 0755)
-	os.MkdirAll(filepath.Join(tmpDir, "folder_0001"), 0755)
+	if err := os.MkdirAll(filepath.Join(tmpDir, "folder_0000"), 0755); err != nil {
+		t.Fatalf("mkdir failed: %v", err)
+	}
+	if err := os.MkdirAll(filepath.Join(tmpDir, "folder_0001"), 0755); err != nil {
+		t.Fatalf("mkdir failed: %v", err)
+	}
 
 	for i := 0; i < 5; i++ {
-		os.WriteFile(filepath.Join(tmpDir, "folder_0000", "file.txt"), []byte("test"), 0644)
+		if err := os.WriteFile(filepath.Join(tmpDir, "folder_0000", "file.txt"), []byte("test"), 0644); err != nil {
+			t.Fatalf("write failed: %v", err)
+		}
 	}
 
 	cfg := &config.FolderOrganizationConfig{

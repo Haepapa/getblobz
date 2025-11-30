@@ -66,33 +66,85 @@ func init() {
 	syncCmd.Flags().String("folder-strategy", "sequential", "folder organization strategy (sequential, partition_key, date)")
 	syncCmd.Flags().Int("partition-depth", 2, "partition depth for partition_key strategy")
 
-	syncCmd.MarkFlagRequired("container")
+	if err := syncCmd.MarkFlagRequired("container"); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to mark required flag: %v\n", err)
+	}
 
-	viper.BindPFlag("azure.connection_string", syncCmd.Flags().Lookup("connection-string"))
-	viper.BindPFlag("azure.account_name", syncCmd.Flags().Lookup("account-name"))
-	viper.BindPFlag("azure.account_key", syncCmd.Flags().Lookup("account-key"))
-	viper.BindPFlag("azure.use_managed_identity", syncCmd.Flags().Lookup("use-managed-identity"))
-	viper.BindPFlag("azure.tenant_id", syncCmd.Flags().Lookup("tenant-id"))
-	viper.BindPFlag("azure.client_id", syncCmd.Flags().Lookup("client-id"))
-	viper.BindPFlag("azure.client_secret", syncCmd.Flags().Lookup("client-secret"))
-	viper.BindPFlag("azure.use_azure_cli", syncCmd.Flags().Lookup("use-azure-cli"))
-	viper.BindPFlag("sync.container", syncCmd.Flags().Lookup("container"))
-	viper.BindPFlag("sync.output_path", syncCmd.Flags().Lookup("output-path"))
-	viper.BindPFlag("sync.prefix", syncCmd.Flags().Lookup("prefix"))
-	viper.BindPFlag("sync.workers", syncCmd.Flags().Lookup("workers"))
-	viper.BindPFlag("sync.batch_size", syncCmd.Flags().Lookup("batch-size"))
-	viper.BindPFlag("sync.skip_existing", syncCmd.Flags().Lookup("skip-existing"))
-	viper.BindPFlag("sync.verify_checksums", syncCmd.Flags().Lookup("verify-checksums"))
-	viper.BindPFlag("sync.force_resync", syncCmd.Flags().Lookup("force-resync"))
-	viper.BindPFlag("sync.disk_warn_percent", syncCmd.Flags().Lookup("disk-warn-percent"))
-	viper.BindPFlag("sync.disk_stop_percent", syncCmd.Flags().Lookup("disk-stop-percent"))
-	viper.BindPFlag("sync.folder_organization.enabled", syncCmd.Flags().Lookup("organize-folders"))
-	viper.BindPFlag("sync.folder_organization.max_files_per_folder", syncCmd.Flags().Lookup("max-files-per-folder"))
-	viper.BindPFlag("sync.folder_organization.strategy", syncCmd.Flags().Lookup("folder-strategy"))
-	viper.BindPFlag("sync.folder_organization.partition_depth", syncCmd.Flags().Lookup("partition-depth"))
-	viper.BindPFlag("watch.enabled", syncCmd.Flags().Lookup("watch"))
-	viper.BindPFlag("watch.interval", syncCmd.Flags().Lookup("watch-interval"))
-	viper.BindPFlag("state.database", syncCmd.Flags().Lookup("state-db"))
+	if err := viper.BindPFlag("azure.connection_string", syncCmd.Flags().Lookup("connection-string")); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to bind connection-string: %v\n", err)
+	}
+	if err := viper.BindPFlag("azure.account_name", syncCmd.Flags().Lookup("account-name")); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to bind account-name: %v\n", err)
+	}
+	if err := viper.BindPFlag("azure.account_key", syncCmd.Flags().Lookup("account-key")); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to bind account-key: %v\n", err)
+	}
+	if err := viper.BindPFlag("azure.use_managed_identity", syncCmd.Flags().Lookup("use-managed-identity")); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to bind use-managed-identity: %v\n", err)
+	}
+	if err := viper.BindPFlag("azure.tenant_id", syncCmd.Flags().Lookup("tenant-id")); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to bind tenant-id: %v\n", err)
+	}
+	if err := viper.BindPFlag("azure.client_id", syncCmd.Flags().Lookup("client-id")); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to bind client-id: %v\n", err)
+	}
+	if err := viper.BindPFlag("azure.client_secret", syncCmd.Flags().Lookup("client-secret")); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to bind client-secret: %v\n", err)
+	}
+	if err := viper.BindPFlag("azure.use_azure_cli", syncCmd.Flags().Lookup("use-azure-cli")); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to bind use-azure-cli: %v\n", err)
+	}
+	if err := viper.BindPFlag("sync.container", syncCmd.Flags().Lookup("container")); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to bind container: %v\n", err)
+	}
+	if err := viper.BindPFlag("sync.output_path", syncCmd.Flags().Lookup("output-path")); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to bind output-path: %v\n", err)
+	}
+	if err := viper.BindPFlag("sync.prefix", syncCmd.Flags().Lookup("prefix")); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to bind prefix: %v\n", err)
+	}
+	if err := viper.BindPFlag("sync.workers", syncCmd.Flags().Lookup("workers")); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to bind workers: %v\n", err)
+	}
+	if err := viper.BindPFlag("sync.batch_size", syncCmd.Flags().Lookup("batch-size")); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to bind batch-size: %v\n", err)
+	}
+	if err := viper.BindPFlag("sync.skip_existing", syncCmd.Flags().Lookup("skip-existing")); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to bind skip-existing: %v\n", err)
+	}
+	if err := viper.BindPFlag("sync.verify_checksums", syncCmd.Flags().Lookup("verify-checksums")); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to bind verify-checksums: %v\n", err)
+	}
+	if err := viper.BindPFlag("sync.force_resync", syncCmd.Flags().Lookup("force-resync")); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to bind force-resync: %v\n", err)
+	}
+	if err := viper.BindPFlag("sync.disk_warn_percent", syncCmd.Flags().Lookup("disk-warn-percent")); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to bind disk-warn-percent: %v\n", err)
+	}
+	if err := viper.BindPFlag("sync.disk_stop_percent", syncCmd.Flags().Lookup("disk-stop-percent")); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to bind disk-stop-percent: %v\n", err)
+	}
+	if err := viper.BindPFlag("sync.folder_organization.enabled", syncCmd.Flags().Lookup("organize-folders")); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to bind organize-folders: %v\n", err)
+	}
+	if err := viper.BindPFlag("sync.folder_organization.max_files_per_folder", syncCmd.Flags().Lookup("max-files-per-folder")); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to bind max-files-per-folder: %v\n", err)
+	}
+	if err := viper.BindPFlag("sync.folder_organization.strategy", syncCmd.Flags().Lookup("folder-strategy")); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to bind folder-strategy: %v\n", err)
+	}
+	if err := viper.BindPFlag("sync.folder_organization.partition_depth", syncCmd.Flags().Lookup("partition-depth")); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to bind partition-depth: %v\n", err)
+	}
+	if err := viper.BindPFlag("watch.enabled", syncCmd.Flags().Lookup("watch")); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to bind watch: %v\n", err)
+	}
+	if err := viper.BindPFlag("watch.interval", syncCmd.Flags().Lookup("watch-interval")); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to bind watch-interval: %v\n", err)
+	}
+	if err := viper.BindPFlag("state.database", syncCmd.Flags().Lookup("state-db")); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to bind state-db: %v\n", err)
+	}
 }
 
 func runSync(cmd *cobra.Command, args []string) error {
@@ -111,13 +163,13 @@ func runSync(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return fmt.Errorf("failed to create logger: %w", err)
 	}
-	defer log.Close()
+	defer func() { _ = log.Close() }()
 
 	db, err := storage.Open(cfg.State.Database)
 	if err != nil {
 		return fmt.Errorf("failed to open state database: %w", err)
 	}
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	azClient, err := azure.CreateClient(&cfg.Azure)
 	if err != nil {

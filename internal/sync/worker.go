@@ -160,7 +160,7 @@ func (s *Syncer) downloadBlob(workerID int, blob *storage.BlobState) error {
 	if err != nil {
 		return fmt.Errorf("failed to create temp file: %w", err)
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	var writer io.Writer = file
 	var hash io.Writer
@@ -173,22 +173,22 @@ func (s *Syncer) downloadBlob(workerID int, blob *storage.BlobState) error {
 
 	err = s.client.DownloadBlob(s.ctx, s.cfg.Sync.Container, blob.BlobName, writer)
 	if err != nil {
-		os.Remove(tmpPath)
+		_ = os.Remove(tmpPath)
 		return fmt.Errorf("download failed: %w", err)
 	}
 
 	if s.cfg.Sync.VerifyChecksums && blob.ContentMD5 != nil && hash != nil {
 		computed := hex.EncodeToString(hash.(interface{ Sum([]byte) []byte }).Sum(nil))
 		if computed != *blob.ContentMD5 {
-			os.Remove(tmpPath)
+			_ = os.Remove(tmpPath)
 			return fmt.Errorf("checksum mismatch: expected %s, got %s", *blob.ContentMD5, computed)
 		}
 	}
 
-	file.Close()
+	_ = file.Close()
 
 	if err := os.Rename(tmpPath, blob.LocalPath); err != nil {
-		os.Remove(tmpPath)
+		_ = os.Remove(tmpPath)
 		return fmt.Errorf("failed to rename temp file: %w", err)
 	}
 

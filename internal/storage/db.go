@@ -28,7 +28,7 @@ func Open(dbPath string) (*DB, error) {
 
 	d := &DB{db: db}
 	if err := d.initialize(); err != nil {
-		db.Close()
+		_ = db.Close()
 		return nil, err
 	}
 
@@ -242,7 +242,7 @@ func (d *DB) GetPendingBlobs() ([]*BlobState, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var blobs []*BlobState
 	for rows.Next() {

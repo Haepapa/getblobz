@@ -13,7 +13,7 @@ import (
 var (
 	cfgFile string
 	cfg     *config.Config
-	
+
 	// Version information
 	version = "dev"
 	commit  = "none"
@@ -54,8 +54,12 @@ func init() {
 	rootCmd.PersistentFlags().String("log-level", "info", "log level (debug, info, warn, error)")
 	rootCmd.PersistentFlags().String("log-format", "text", "log format (text, json)")
 
-	viper.BindPFlag("logging.level", rootCmd.PersistentFlags().Lookup("log-level"))
-	viper.BindPFlag("logging.format", rootCmd.PersistentFlags().Lookup("log-format"))
+	if err := viper.BindPFlag("logging.level", rootCmd.PersistentFlags().Lookup("log-level")); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to bind log-level flag: %v\n", err)
+	}
+	if err := viper.BindPFlag("logging.format", rootCmd.PersistentFlags().Lookup("log-format")); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to bind log-format flag: %v\n", err)
+	}
 }
 
 // initConfig reads in config file and ENV variables if set.

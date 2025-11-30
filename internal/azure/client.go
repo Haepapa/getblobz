@@ -94,7 +94,7 @@ func (c *Client) DownloadBlob(ctx context.Context, containerName, blobName strin
 	if err != nil {
 		return fmt.Errorf("failed to download blob: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if _, err := io.Copy(writer, resp.Body); err != nil {
 		return fmt.Errorf("failed to copy blob data: %w", err)

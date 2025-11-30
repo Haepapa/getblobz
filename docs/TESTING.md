@@ -1,5 +1,28 @@
 # Testing Guide
 
+## Quick Local CI Checks (before pushing)
+
+Run the same checks CI runs to avoid push-failures:
+
+```bash
+# Install deps (first time)
+make deps
+
+# Run all CI checks (fmt, vet, lint, unit tests)
+make ci
+
+# Or run individually
+make fmt && make vet && make lint && make test-unit
+```
+
+Lint uses golangci-lint; if missing, install with:
+
+```bash
+brew install golangci-lint  # macOS
+# or
+go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+```
+
 ## Running Tests
 
 ```bash
