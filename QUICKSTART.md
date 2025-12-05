@@ -99,4 +99,6 @@ getblobz --help
 getblobz sync --help
 ```
 
+Prerequisite for tests: Azurite is needed for integration/e2e tests; run `make deps` to install (requires npm) or `npm install -g azurite`.
+
 See [README.md](README.md) for more details.

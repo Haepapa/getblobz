@@ -96,6 +96,10 @@ deps:
 	@echo "Installing dependencies..."
 	@go mod download
 	@go mod tidy
+	@if command -v npm >/dev/null 2>&1 && ! command -v azurite >/dev/null 2>&1; then \
+		echo "Installing Azurite (Azure Storage emulator) for integration/e2e tests..."; \
+		npm install -g azurite; \
+	fi
 
 # Run all checks (CI equivalent)
 ci: fmt vet lint test-unit

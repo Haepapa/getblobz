@@ -156,6 +156,10 @@ For large file collections, enable folder organization to maintain filesystem pe
 - **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)** - Deployment strategies, systemd service, and Docker setup
 - **[docs/RELEASE.md](docs/RELEASE.md)** - Release process, versioning, and distribution
 
+### Testing prerequisites
+
+- Integration and E2E tests require Azurite (Azure Storage emulator). `make deps` will install it if npm is available, or install manually with: `npm install -g azurite`. See docs/TESTING.md.
+
 
 
 
