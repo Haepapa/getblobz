@@ -63,7 +63,7 @@ jobs:
           node-version: '18'
       - name: Allow insecure Azurite connections
         run: echo "AZURE_STORAGE_ALLOW_INSECURE_CONNECTION=true" >> $GITHUB_ENV
-        
+
       - name: Install Azurite
         run: npm install -g azurite
       
@@ -112,7 +112,7 @@ jobs:
         run: go build -v -o getblobz main.go
       
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: getblobz
           path: getblobz
