@@ -61,7 +61,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-      
+      - name: Allow insecure Azurite connections
+        run: echo "AZURE_STORAGE_ALLOW_INSECURE_CONNECTION=true" >> $GITHUB_ENV
+        
       - name: Install Azurite
         run: npm install -g azurite
       
