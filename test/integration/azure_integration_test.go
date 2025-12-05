@@ -11,6 +11,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob"
 	"github.com/haepapa/getblobz/internal/azure"
 )
@@ -26,8 +27,23 @@ func getAzuriteConnString() string {
 func TestAzureClient_ListAndDownload_WithAzurite(t *testing.T) {
 	ctx := context.Background()
 
-	// Create low-level SDK client via connection string
-	sdkClient, err := azblob.NewClientFromConnectionString(getAzuriteConnString(), nil)
+	// Use shared key credential with HTTP endpoint
+	accountName := "devstoreaccount1"
+	accountKey := "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw=="
+	serviceURL := "http://127.0.0.1:10000/devstoreaccount1"
+
+	cred, err := azblob.NewSharedKeyCredential(accountName, accountKey)
+	if err != nil {
+		t.Fatalf("failed to create credential: %v", err)
+	}
+
+	// Create client with InsecureAllowCredentialWithHTTP enabled for Azurite
+	clientOpts := &azblob.ClientOptions{
+		ClientOptions: azcore.ClientOptions{
+			InsecureAllowCredentialWithHTTP: true,
+		},
+	}
+	sdkClient, err := azblob.NewClientWithSharedKeyCredential(serviceURL, cred, clientOpts)
 	if err != nil {
 		t.Fatalf("failed to create azblob client: %v", err)
 	}
