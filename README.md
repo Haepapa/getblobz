@@ -7,15 +7,9 @@ A CLI tool for syncing files from Azure Blob Storage to your local filesystem. H
 
 ## Features
 
-- Multiple authentication methods (connection string, managed identity, service principal, Azure CLI)
-- Incremental sync with SQLite state tracking
-- Watch mode for continuous monitoring
-- Concurrent downloads with configurable workers
-- Resumes interrupted downloads
-- MD5 checksum verification
-- Configuration via YAML, environment variables, or flags
-- Auto-throttling and resource limits
-- Folder organization for large file collections
+- Fast incremental sync with state tracking
+- Multiple Azure auth methods (connection string, managed identity, Azure CLI)
+- Robust resume, checksums, and optional watch mode
 
 ## Installation
 
@@ -64,7 +58,7 @@ getblobz sync \
 getblobz sync --container mycontainer --connection-string "..." --watch --watch-interval 5m
 ```
 
-See [QUICKSTART.md](QUICKSTART.md) for more examples.
+More examples are in docs/README.md.
 
 ## Commands
 
@@ -142,28 +136,8 @@ For large file collections, enable folder organization to maintain filesystem pe
 
 ## Documentation
 
-### Root Documentation
-
-- **[README.md](README.md)** - Project overview, features, and installation (you are here)
-- **[QUICKSTART.md](QUICKSTART.md)** - Get up and running in minutes with basic examples
-- **[CHANGELOG.md](CHANGELOG.md)** - Version history and release notes
-
-### Detailed Guides (`docs/`)
-
-- **[docs/BUILD.md](docs/BUILD.md)** - Building from source, cross-compilation, and development setup
-- **[docs/DEVELOPER.md](docs/DEVELOPER.md)** - Architecture overview, code structure, and contribution guide
-- **[docs/TESTING.md](docs/TESTING.md)** - Running tests, writing tests, and CI/CD integration
-- **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)** - Deployment strategies, systemd service, and Docker setup
-- **[docs/RELEASE.md](docs/RELEASE.md)** - Release process, versioning, and distribution
-
-### Testing prerequisites
-
-- Integration and E2E tests require Azurite (Azure Storage emulator). `make deps` will install it if npm is available, or install manually with: `npm install -g azurite`. See docs/TESTING.md.
-
-
-
-
-
+- Detailed guides live in the docs/ folder: Build, Testing, Deployment, Release, and Developer.
+- Quick Start is covered above; see docs/TESTING.md for Azurite setup if running integration/E2E tests.
 ## Contributing
 
 Contributions welcome! Fork the repo, make changes, add tests, and submit a pull request.

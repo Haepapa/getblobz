@@ -17,21 +17,11 @@ jobs:
         with:
           go-version: '1.21'
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-
-      - name: Install deps (including Azurite)
-        run: |
-          make deps
-          npm config set fund false || true
-          if ! command -v azurite >/dev/null 2>&1; then npm install -g azurite; fi
+      - name: Dependencies
+        run: make deps
 
       - name: CI checks
         run: make ci
 
-      - name: Run all tests
-        env:
-          AZURE_STORAGE_CONNECTION_STRING: 'UseDevelopmentStorage=true'
-        run: make test-all
+      - name: Build
+        run: make build

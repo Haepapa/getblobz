@@ -11,6 +11,5 @@
 ## Quick Links
 
 - [Main README](../README.md) - Project overview
-- [Quick Start](../QUICKSTART.md) - Get started in minutes
 - [Changelog](../CHANGELOG.md) - Version history
 - [Issues](https://github.com/haepapa/getblobz/issues) - Report bugs
